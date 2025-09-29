@@ -1,0 +1,4 @@
+# Ignoriraj .env datoteke
+.env
+.env.local
+.env.*.local
