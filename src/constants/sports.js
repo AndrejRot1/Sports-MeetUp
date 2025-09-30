@@ -13,5 +13,6 @@ export const SPORTS = [
   { value: "tableTennis", labelKey: "tableTennis" },
   { value: "squash", labelKey: "squash" },
   { value: "golf", labelKey: "golf" },
+  { value: "climbing", labelKey: "climbing" },
   { value: "other", labelKey: "otherSport" }
 ]; 

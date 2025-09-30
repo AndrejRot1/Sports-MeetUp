@@ -12,21 +12,48 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+// Inline Basketball icon
+function BasketballIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18" />
+      <path d="M12 3a15 15 0 0 1 0 18" />
+      <path d="M12 3a15 15 0 0 0 0 18" />
+    </svg>
+  );
+}
+
+// Inline Climbing icon
+function ClimbingIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M3 20l6-8 3 4 3-5 6 9H3z" />
+      <circle cx="12" cy="7" r="1.5" />
+      <path d="M12 8.5l-1.5 3 2.5 2.5M10.5 11.5L8 13" />
+    </svg>
+  );
+}
+
+// Sport options with icons
 const sportOptions = [
   { value: "football", labelKey: "football", icon: <ShieldHalf className="h-4 w-4 mr-2 opacity-50" /> },
-  { value: "basketball", labelKey: "basketball", icon: <Zap className="h-4 w-4 mr-2 opacity-50" /> },
+  { value: "basketball", labelKey: "basketball", icon: <BasketballIcon className="h-4 w-4 mr-2 text-orange-500" /> },
   { value: "tennis", labelKey: "tennis", icon: <UsersThree className="h-4 w-4 mr-2 opacity-50" /> },
   { value: "running", labelKey: "running", icon: <Users className="h-4 w-4 mr-2 opacity-50" /> },
   { value: "cycling", labelKey: "cycling", icon: <Bike className="h-4 w-4 mr-2 opacity-50" /> },
   { value: "volleyball", labelKey: "volleyball", icon: <ShieldHalf className="h-4 w-4 mr-2 opacity-50" /> },
   { value: "badminton", labelKey: "badminton", icon: <Zap className="h-4 w-4 mr-2 opacity-50" /> },
   { value: "hiking", labelKey: "hiking", icon: <MountainSnow className="h-4 w-4 mr-2 opacity-50" /> },
+  { value: "climbing", labelKey: "climbing", icon: <ClimbingIcon className="h-4 w-4 mr-2 text-emerald-600" /> },
   { value: "yoga", labelKey: "yoga", icon: <Users className="h-4 w-4 mr-2 opacity-50" /> },
   { value: "gym", labelKey: "gym", icon: <Dumbbell className="h-4 w-4 mr-2 opacity-50" /> },
   { value: "swimming", labelKey: "swimming", icon: <Waves className="h-4 w-4 mr-2 opacity-50" /> },
   { value: "tableTennis", labelKey: "tableTennis", icon: <Target className="h-4 w-4 mr-2 opacity-50" /> },
   { value: "squash", labelKey: "squash", icon: <Bot className="h-4 w-4 mr-2 opacity-50" /> },
   { value: "golf", labelKey: "golf", icon: <Zap className="h-4 w-4 mr-2 opacity-50" /> },
+  { value: "karate", labelKey: "karate", icon: <Dumbbell className="h-4 w-4 mr-2 opacity-50" /> },
+  { value: "surfing", labelKey: "surfing", icon: <Waves className="h-4 w-4 mr-2 opacity-50" /> },
   { value: "other", labelKey: "otherSport", icon: <Info className="h-4 w-4 mr-2 opacity-50" /> }
 ];
 
@@ -54,19 +81,16 @@ function CreateEventPage() {
   useEffect(() => {
     if (isEditing) {
       const existingEvent = events.find(event => event.id === eventId);
-      if (existingEvent) {
-        setEventData({
-          title: existingEvent.title || '',
-          sportType: existingEvent.sport_type || '',
-          date: existingEvent.date || '',
-          time: existingEvent.time || '',
-          location: existingEvent.location || '',
-          description: existingEvent.description || '',
-          maxParticipants: existingEvent.max_participants || ''
-        });
-      } else {
-        navigate('/dashboard'); 
-      }
+      if (!existingEvent) return navigate('/dashboard');
+      setEventData({
+        title: existingEvent.title || '',
+        sportType: existingEvent.sport_type || '',
+        date: existingEvent.date || '',
+        time: existingEvent.time || '',
+        location: existingEvent.location || '',
+        description: existingEvent.description || '',
+        maxParticipants: existingEvent.max_participants || ''
+      });
     }
   }, [eventId, events, isEditing, navigate]);
 
@@ -84,12 +108,13 @@ function CreateEventPage() {
     setError('');
     setIsLoading(true);
 
-    if (!eventData.title || !eventData.sportType || !eventData.date || !eventData.time || !eventData.location) {
-      setError('Please fill in all required fields.');
+    // Basic validation
+    if (!eventData.title.trim() || !eventData.sportType.trim() || !eventData.date || !eventData.time || !eventData.location.trim()) {
+      setError(t('pleaseFillRequiredFields'));
       setIsLoading(false);
       return;
     }
-    
+
     const eventPayload = {
       ...eventData,
       maxParticipants: eventData.maxParticipants ? parseInt(eventData.maxParticipants) : null,
@@ -116,78 +141,90 @@ function CreateEventPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         <Button variant="outline" onClick={() => navigate(-1)} className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" /> {t('backToLogin')} 
         </Button>
+
         <div className="bg-white rounded-lg shadow-xl overflow-hidden">
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
             <h1 className="text-2xl font-bold">{isEditing ? t('updateEvent') : t('createANewEvent')}</h1>
             <p className="text-blue-100">{t('createEventPageDescription')}</p>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
             <div>
-              <Label htmlFor="title" className="text-base flex items-center"><Type className="h-4 w-4 mr-1" />{t('eventTitleLabel')}</Label>
+              <Label htmlFor="title" className="text-base flex items-center">
+                <Type className="h-4 w-4 mr-1" /> {t('eventTitleLabel')}
+              </Label>
               <Input id="title" name="title" value={eventData.title} onChange={handleChange} placeholder={t('eventTitlePlaceholder')} className="mt-1" required />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="sportType" className="text-base flex items-center"><Users className="h-4 w-4 mr-1" />{t('sportTypeLabel')}</Label>
+                <Label htmlFor="sportType" className="text-base flex items-center">
+                  <Users className="h-4 w-4 mr-1" /> {t('sportTypeLabel')}
+                </Label>
                 <Select onValueChange={handleSportTypeChange} value={eventData.sportType} required>
                   <SelectTrigger id="sportType" className="mt-1">
                     <SelectValue placeholder={t('sportTypePlaceholder')} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-60 overflow-y-auto">
                     {sportOptions.map(option => (
                       <SelectItem key={option.value} value={option.value}>
                         <div className="flex items-center">
-                           {option.icon}
-                           {t(option.labelKey)}
+                          {option.icon}
+                          {t(option.labelKey)}
                         </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+
               <div>
-                <Label htmlFor="maxParticipants" className="text-base flex items-center"><Users className="h-4 w-4 mr-1" />{t('maxParticipantsLabel')}</Label>
+                <Label htmlFor="maxParticipants" className="text-base flex items-center">
+                  <Users className="h-4 w-4 mr-1" /> {t('maxParticipantsLabel')}
+                </Label>
                 <Input id="maxParticipants" name="maxParticipants" type="number" value={eventData.maxParticipants} onChange={handleChange} placeholder={t('maxParticipantsPlaceholder')} className="mt-1" />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="date" className="text-base flex items-center"><Calendar className="h-4 w-4 mr-1" />{t('dateLabel')}</Label>
+                <Label htmlFor="date" className="text-base flex items-center">
+                  <Calendar className="h-4 w-4 mr-1" /> {t('dateLabel')}
+                </Label>
                 <Input id="date" name="date" type="date" value={eventData.date} onChange={handleChange} className="mt-1" required />
               </div>
               <div>
-                <Label htmlFor="time" className="text-base flex items-center"><Clock className="h-4 w-4 mr-1" />{t('timeLabel')}</Label>
+                <Label htmlFor="time" className="text-base flex items-center">
+                  <Clock className="h-4 w-4 mr-1" /> {t('timeLabel')}
+                </Label>
                 <Input id="time" name="time" type="time" value={eventData.time} onChange={handleChange} className="mt-1" required />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="location" className="text-base flex items-center"><MapPin className="h-4 w-4 mr-1" />{t('locationLabel')}</Label>
+              <Label htmlFor="location" className="text-base flex items-center">
+                <MapPin className="h-4 w-4 mr-1" /> {t('locationLabel')}
+              </Label>
               <Input id="location" name="location" value={eventData.location} onChange={handleChange} placeholder={t('locationPlaceholder')} className="mt-1" required />
             </div>
 
             <div>
-              <Label htmlFor="description" className="text-base flex items-center"><Info className="h-4 w-4 mr-1" />{t('descriptionLabel')}</Label>
+              <Label htmlFor="description" className="text-base flex items-center">
+                <Info className="h-4 w-4 mr-1" /> {t('descriptionLabel')}
+              </Label>
               <Textarea id="description" name="description" value={eventData.description} onChange={handleChange} placeholder={t('descriptionPlaceholder')} className="mt-1" rows={4} />
             </div>
-            
+
             {error && (
-              <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
+              <div aria-live="polite" className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
                 {error}
               </div>
             )}
-            
+
             <div className="flex justify-end pt-4">
               <Button type="submit" className="flex items-center" disabled={isLoading}>
                 {isLoading ? (

@@ -15,8 +15,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <LanguageProvider>
         <AuthProvider>
           <EventProvider>
-            <App />
-            <Toaster />
+          <App />
+          <Toaster />
           </EventProvider>
         </AuthProvider>
       </LanguageProvider>
